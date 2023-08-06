@@ -60,7 +60,7 @@ public class accountDAO {
 
 
     //getaccountbyusername
-    public List<Account> getAccountByUsername(String username) {
+    public static List<Account> getAccountByUsername(String username) {
         Connection connections = ConnectionUtil.getConnection();
         List<Account> accounts = new ArrayList<>();
         try {
@@ -79,14 +79,14 @@ public class accountDAO {
         return accounts;
     }
 
-    public List<Account> getAccountByUsernameandPassword(String username, int password) {
+    public static List<Account> getAccountByUsernameandPassword(String username, String password) {
         Connection connections = ConnectionUtil.getConnection();
         List<Account> accounts = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Account WHERE username = ? AND password = ? ";
             PreparedStatement preparedStatement = connections.prepareStatement(sql);
             preparedStatement.setString(1, username);
-            preparedStatement.setInt(2, password);
+            preparedStatement.setString(2, password);
             ResultSet results = preparedStatement.executeQuery();
             if(results.next()) {
                 Account account = new Account(results.getInt("account_id"), results.getString("username"), results.getString("password"));
@@ -147,13 +147,13 @@ public class accountDAO {
     }
 
     //insertaccounts
-    public Account insertUsername(String username, int password) {
+    public Account insertUsername(String username, String password) {
         Connection connections = ConnectionUtil.getConnection();
         try {
-            String sql = "INSERT INTO Account (username,passowrd) VALUES (?,?)";
+            String sql = "INSERT INTO Account (username,password) VALUES (?,?)";
             PreparedStatement preparedStatement = connections.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, username);
-            preparedStatement.setInt(2, password);
+            preparedStatement.setString(2, password);
             ResultSet results = preparedStatement.executeQuery();
             int affRows = preparedStatement.executeUpdate();
             if (affRows > 0 ) {
