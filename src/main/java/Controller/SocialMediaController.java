@@ -34,7 +34,8 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.get("example-endpoint", this::exampleHandler);
-        app.post("/register", this::registerUserHandler);
+        app.post("/register", this::registerUser);
+        app.post("/login", this::userLogin);
         return app;
     }
 
@@ -45,12 +46,11 @@ public class SocialMediaController {
     private void exampleHandler(Context context) {
         context.json("sample text");
     }
-    private void registerUserHandler(Context ctx) {
+    private void registerUser(Context ctx) {
         try {
             Account account = objectMapper.readValue(ctx.body(), Account.class);
-          
             account.setAccount_id(0);
-            Account registeredAccount = accountService.registerAccount(account.username, account.password);
+            Account registeredAccount = AccountService.accountRegister(account.username, account.password);
             if (registeredAccount != null) {
                 String response = objectMapper.writeValueAsString(registeredAccount);
             
@@ -59,6 +59,23 @@ public class SocialMediaController {
                 ctx.status(400);
             }
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            ctx.status(400);
+        }
+    }
+
+    private void userLogin (Context ctx) {
+        try {
+            Account accountL = objectMapper.readValue(ctx.body(), Account.class);
+            Account userAccountLogin = AccountService.realLogin(accountL.username, accountL.password);
+            if (userAccountLogin != null) {
+                String response = objectMapper.writeValueAsString(userAccountLogin);
+                ctx.json(response).status(200);
+            } else {
+                ctx.status(401);
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
             e.printStackTrace();
             ctx.status(400);
         }

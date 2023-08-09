@@ -60,9 +60,9 @@ public class accountDAO {
 
 
     //getaccountbyusername
-    public static List<Account> getAccountByUsername(String username) {
+    public Account getAccountByUsername(String username) {
         Connection connections = ConnectionUtil.getConnection();
-        List<Account> accounts = new ArrayList<>();
+        
         try {
             String sql = "SELECT * FROM Account WHERE username = ?";
             PreparedStatement preparedStatement = connections.prepareStatement(sql);
@@ -70,18 +70,17 @@ public class accountDAO {
             ResultSet results = preparedStatement.executeQuery();
             while(results.next()) {
                 Account account = new Account(results.getInt("account_id"), results.getString("username"), results.getString("password"));
-                accounts.add(account);
+                return account;
             }
         } catch (Exception e) {
             // TODO: handle exception
-            System.out.println(e.getLocalizedMessage());
+            System.out.println(e.getMessage());
         }
-        return accounts;
+        return null;
     }
 
-    public static List<Account> getAccountByUsernameandPassword(String username, String password) {
+    public Account getAccountByUsernameandPassword(String username, String password) {
         Connection connections = ConnectionUtil.getConnection();
-        List<Account> accounts = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Account WHERE username = ? AND password = ? ";
             PreparedStatement preparedStatement = connections.prepareStatement(sql);
@@ -90,11 +89,11 @@ public class accountDAO {
             ResultSet results = preparedStatement.executeQuery();
             if(results.next()) {
                 Account account = new Account(results.getInt("account_id"), results.getString("username"), results.getString("password"));
-                accounts.add(account);
+                return account;
             }
         } catch (Exception e) {
             // TODO: handle exception
-            System.out.println(e.getLocalizedMessage());
+            System.out.println(e.getMessage());
         }
         return null;
     }
@@ -154,13 +153,12 @@ public class accountDAO {
             PreparedStatement preparedStatement = connections.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
-            ResultSet results = preparedStatement.executeQuery();
             int affRows = preparedStatement.executeUpdate();
             if (affRows > 0 ) {
                 ResultSet genrResultSet = preparedStatement.getGeneratedKeys();
                 if (genrResultSet.next()) {
                     int generateAccountId = genrResultSet.getInt(1);
-                    return new Account(generateAccountId, username, username);
+                    return new Account(generateAccountId, username, password);
                 }
             }
         } catch (Exception e) {

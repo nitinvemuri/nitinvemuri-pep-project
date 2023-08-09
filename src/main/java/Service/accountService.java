@@ -23,7 +23,7 @@ public class accountService {
         return null;
        }
 
-       if (accountDAO.getAccountByUsername(username)!=null) {
+       if (AccountDAO.getAccountByUsername(username)!=null) {
         return null;
        }
 
@@ -37,15 +37,13 @@ public class accountService {
 
     }
     
-    public Account login(String username, String password) {
-        Account account = (Account)accountDAO.getAccountByUsernameandPassword(username,password); 
+    public Account realLogin(String username, String password) {
+        Account account = AccountDAO.getAccountByUsernameandPassword(username, password);
         if (account != null) {
             return account;
         }
         return null;
     }
 
-    public static Account registerAccount(String username, String password) {
-        return null;
-    }
+    
 }
