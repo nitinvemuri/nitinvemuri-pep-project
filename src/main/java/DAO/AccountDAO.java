@@ -20,7 +20,7 @@ import Util.ConnectionUtil;
 
 
 
-public class accountDAO {
+public class AccountDAO {
     public List<Account> getAccounts() {
         Connection connections = ConnectionUtil.getConnection();
         List<Account> accounts = new ArrayList<>();
@@ -195,6 +195,25 @@ public class accountDAO {
             // TODO: handle exception
             System.out.println(e.getMessage());
         }
+    }
+
+     public boolean doesAccountExistByTheAccountID(int account_id) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
+            String sql = "SELECT COUNT(*) FROM Account WHERE account_id  = ?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, account_id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 }
 

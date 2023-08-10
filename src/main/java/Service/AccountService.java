@@ -6,15 +6,14 @@ import java.util.List;
 
 import org.mockito.internal.matchers.And;
 
-import DAO.accountDAO;
-import DAO.messageDAO;
+import DAO.AccountDAO;
 
-public class accountService {
+public class AccountService {
 
-    private final accountDAO AccountDAO;
+    private final AccountDAO AccountDAO;
 
-    public accountService() {
-        this.AccountDAO = new accountDAO();
+    public AccountService() {
+        this.AccountDAO = new AccountDAO();
     }
 
     public Account accountRegister(String username, String password) {
@@ -27,9 +26,9 @@ public class accountService {
         return null;
        }
 
-       Account registerAccount = AccountDAO.insertUsername(username, password);
-       if (registerAccount != null) {
-        return registerAccount;
+       Account registerNewAccount = AccountDAO.insertUsername(username, password);
+       if (registerNewAccount != null) {
+        return registerNewAccount;
        } else{
         return null;
        }
@@ -37,7 +36,7 @@ public class accountService {
 
     }
     
-    public Account realLogin(String username, String password) {
+    public Account Login(String username, String password) {
         Account account = AccountDAO.getAccountByUsernameandPassword(username, password);
         if (account != null) {
             return account;
