@@ -43,18 +43,34 @@ public class MessageService {
         return message;
     }
 
-    public Message updateMessage(Message message) {
-        Message messageExists = getMessageById(message.getMessage_id());
-        if ((messageExists != null) && isMessageValid(messageExists)) {
-            messageDAO.updateMessageText(message.getMessage_id(), message.getPosted_by(), message.getMessage_text(), message.getTime_posted_epoch());
+
+    public Message updateMessageText(Message message) {
+        Message existingmessage = getMessageById(message.getMessage_id());
+        if ((existingmessage != null) && isMessageValid(message)) {
+            messageDAO.updateMessageText(message.getMessage_id(), message.getPosted_by(), message.getMessage_text(),
+                    message.getTime_posted_epoch());
             return messageDAO.getMessageById(message.getMessage_id());
         }
         return null;
     }
 
+    public Message updateMessageById(int id, Message message){
+        Message update = messageDAO.getMessageById(id);
+        if(message.getMessage_text().isBlank() || message.getMessage_text().length()>=255 || messageDAO.getMessageById(id) == null){
+            return null;
+        }
+
+        messageDAO.updateMessageById(id, message);
+        String text = message.getMessage_text();
+        update.setMessage_text(text);
+        return update;
+    }
+
+
     public List<Message> getMessagesByAccountId(int accountId) {
         return messageDAO.getMessagesByAccountId(accountId);
     }
+
 
     private boolean isMessageValid(Message message) {
         String messageText = message.getMessage_text();

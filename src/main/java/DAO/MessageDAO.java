@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jetty.util.ArrayUtil;
+
 import Model.Message;
 import Util.ConnectionUtil;
 
@@ -30,6 +32,22 @@ public class MessageDAO {
             System.out.println(e.getMessage());
         }
         return messages;
+    }
+
+    public void updateMessageById(int id, Message message){
+        Connection connection = ConnectionUtil.getConnection();
+        try {
+            String sql = "UPDATE Message SET message_text=? WHERE message_id=?;";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setString(1, message.getMessage_text());
+            preparedStatement.setInt(2, id);
+            preparedStatement.executeUpdate();
+
+            
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
  
@@ -78,11 +96,7 @@ public class MessageDAO {
         return null;
     }
 
-    /**
-     * Delete the message identified by the message ID.
-     *
-     * @param messageId a message ID.
-     */
+ 
     public void deleteMessage(int messageId) {
         Connection connection = ConnectionUtil.getConnection();
         try {
@@ -97,12 +111,7 @@ public class MessageDAO {
         }
     }
 
-    /**
-     * Update the message text identified by the message ID.
-     *
-     * @param messageId   a message ID.
-     * @param i the updated message text.
-     */
+   
     public void updateMessageText(int messageId, int posted_by, String updateText, Long time_posted_epoch) {
         Connection connection = ConnectionUtil.getConnection();
         try {
@@ -120,13 +129,7 @@ public class MessageDAO {
         }
     }
 
-    /**
-     * Retrieve all messages written by a particular user.
-     *
-     * @param accountId the ID of the user account.
-     * @return a list of messages written by the user, or an empty list if no
-     *         messages found.
-     */
+  
     public List<Message> getMessagesByAccountId(int accountId) {
         Connection connection = ConnectionUtil.getConnection();
         List<Message> messages = new ArrayList<>();
@@ -148,4 +151,27 @@ public class MessageDAO {
         }
         return messages;
     }
+
+    public List<Message> getMessageByUser(Integer user) {
+        Connection connection = ConnectionUtil.getConnection();
+        List<Message> messages = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM Message Where username = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, user);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Message message = new Message(rs.getInt("message_id"), rs.getInt("posted_by"),
+                        rs.getString("message_text"), rs.getLong("time_posted_epoch"));
+                messages.add(message);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return messages;
+
+    }
+
 }

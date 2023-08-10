@@ -6,6 +6,8 @@ import Model.Account;
 import Model.Message;
 import Service.AccountService;
 import Service.MessageService;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import io.javalin.Javalin;
@@ -27,16 +29,17 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.post("/register", this::registerUserHandler);
         app.post("/login", this::loginUserHandler);
-        app.post("/messages", this::createMessage);
-        app.get("/messages", this::getAllMessages);
-        app.get("/messages/{message_id}", this::getMessageById);
-        app.delete("/messages/{message_id}", this::deleteMessageById);
-        app.patch("/messages/{message_id}", this::updateMessageById);
+        app.post("/messages", this::createMessageHandler);
+        app.get("/messages", this::getAllMessagesHandler);
+        app.get("/messages/{message_id}", this::getMessageByIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
+        app.patch("/messages/{message_id}", this::updateMessageByIdHandler);
+        app.get("/accounts/{account_id}/messages", this::getAllMessagesFromUserHandler);
 
         return app;
     }
 
-    private void createMessage(Context ctx) {
+    private void createMessageHandler(Context ctx) {
         try {
             Message message = objectMapper.readValue(ctx.body(), Message.class);
             Message createdMessage = messageService.createMessage(message);
@@ -55,20 +58,7 @@ public class SocialMediaController {
 
     }
 
-    private void getAllMessages(Context ctx) {
-        List<Message> messages = messageService.getAllMessages();
-        ctx.json(messages).status(200);
-
-    }
-
-    private void getMessageById(Context ctx) {
-        int messageId = Integer.parseInt(ctx.pathParam("message_id"));
-        Message message = messageService.getMessageById(messageId);
-        ctx.json(message).status(200);
-        
-    }
-
-    private void deleteMessageById(Context ctx) {
+    private void deleteMessageByIdHandler(Context ctx) {
         int messageId = Integer.parseInt(ctx.pathParam("message_id"));
         Message deletedMessage = messageService.deleteMessage(messageId);
 
@@ -80,10 +70,36 @@ public class SocialMediaController {
       
     }
 
-    private void updateMessageById(Context ctx) {
+    private void getAllMessagesHandler(Context ctx) {
+        List<Message> messages = messageService.getAllMessages();
+        if (messages != null ) {
+            ctx.json(messages).status(200);
+        } else {
+            ctx.json(messages).status(200);
+        }
+       
+
+    }
+
+    private void getMessageByIdHandler(Context ctx) {
+        int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+        Message message = messageService.getMessageById(messageId);
+        if (message != null) {
+            ctx.json(message).status(200);
+        } if (message == null) {
+            ctx.status(200);
+        } else {
+            ctx.status(200);
+        }
+    }
+
+   
+
+    private void updateMessageByIdHandler(Context ctx) {
         try {
             Message message = objectMapper.readValue(ctx.body(), Message.class);
-            Message updatedMessage = messageService.updateMessage(message);
+            int id = Integer.parseInt(ctx.pathParam("message_id"));
+            Message updatedMessage = messageService.updateMessageById(id,message);
             if (updatedMessage != null) {
                 String response = objectMapper.writeValueAsString(updatedMessage);
                 ctx.result(response).status(200);
@@ -126,6 +142,18 @@ public class SocialMediaController {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             ctx.status(400);
+        }
+    }
+
+    private void getAllMessagesFromUserHandler(Context ctx) {
+        String userID  = ctx.pathParam("account_id");
+        int id = Integer.parseInt(userID);
+        ArrayList<Message> userMessages = (ArrayList<Message>) messageService.getMessagesByAccountId(id);
+
+        if (userMessages!=null) {
+            ctx.json(userMessages).status(200);
+        } else {
+            ctx.status(500);
         }
     }
 }
